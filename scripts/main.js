@@ -2,7 +2,8 @@ import { words } from "./words.js";
 
 const langRuBtn = document.getElementById("ru");
 const langEnBtn = document.getElementById("en");
-let lang = true; // true - en-ru, false - ru-en
+const langExplBtn = document.getElementById("exp");
+let lang = 0; // 0 - en-ru, 1 - ru-en, -1 - exp-en
 
 const wordScreen = document.getElementById("word");
 const info = document.getElementById("info");
@@ -32,11 +33,17 @@ function displayWord(number) {
     setUp();
     return;
   }
-  wordScreen.innerText = lang ? wordList[number].en : wordList[number].ru;
+  console.log("lang: ", lang);
+  wordScreen.innerText =
+    lang === 0
+      ? wordList[number].en
+      : lang < 0
+      ? wordList[count].exp
+      : wordList[number].ru;
 }
 
 function checkAnswer() {
-  if (answer.value === (lang ? wordList[count].ru : wordList[count].en)) {
+  if (answer.value === (lang === 0 ? wordList[count].ru : wordList[count].en)) {
     info.innerText = "CORRECT";
     info.classList.add("correct");
     displayWord(++count);
@@ -56,15 +63,22 @@ function removeInfo() {
   }, 300);
 }
 
-function switchLanguage() {
-  langRuBtn.disabled = !lang;
-  langEnBtn.disabled = lang;
-  lang = !lang;
+function switchLanguage(num) {
+  lang = num;
+  langRuBtn.disabled = false;
+  langEnBtn.disabled = false;
+  langExplBtn.disabled = false;
+  num < 0
+    ? (langExplBtn.disabled = true)
+    : num > 0
+    ? (langRuBtn.disabled = true)
+    : (langEnBtn.disabled = true);
   count++;
   displayWord(count);
 }
 
 document.addEventListener("DOMContentLoaded", setUp);
 checkBtn.addEventListener("click", checkAnswer);
-langRuBtn.addEventListener("click", switchLanguage);
-langEnBtn.addEventListener("click", switchLanguage);
+langRuBtn.addEventListener("click", () => switchLanguage(1));
+langEnBtn.addEventListener("click", () => switchLanguage(0));
+langExplBtn.addEventListener("click", () => switchLanguage(-1));
